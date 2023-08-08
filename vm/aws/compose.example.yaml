@@ -1,0 +1,64 @@
+services:
+  hava:
+    image: hava/self-hosted:2.3.877
+    restart: always
+    depends_on:
+      - elastic
+      - redis
+    environment:
+      ELASTICSEARCH_URL: "http://elastic:9200"
+      REDIS_URL: "redis://redis:6379"
+      LICENCE_FILE: /hava/hava.licence
+      # modify the following setings to match your environment
+      DATABASE_URL: "" # postgres://user:pass@endpoint:port/database
+      ENCRYPT_IV: "random" # openssl rand -hex 8
+      ENCRYPT_KEY: "random" # openssl rand -hex 48
+      CAR_ENABLED: true
+      CAR_ACCOUNT_ID: "122761306813" # id of AWS account
+      HAVA_HOST: "http://hava.example.com:9700" # full url for the frontend appls 
+      COOKIE_DOMAIN: "" # domain used for cookies e.g. example.com 
+      API_HOST: "hava.example.com" # dns domain of the API endpoint e.g. hava.example.com
+      API_PORT: "9700" # port the API runs on, default 9700 (need to match open ports)
+      WEBSOCKET_HOST: "hava.example.com" # dns domain name of websocket e.g. hava.example.com
+      WEBSOCKET_PORT: "9701" # port the websocker runs on, default 9701 (need to match open ports)
+      SMTP_USER: "" 
+      SMTP_ADDRESS: ""
+      SMTP_PORT: ""
+      SMTP_DOMAIN: ""
+      EMAIL_FROM_ADDRESS: ""
+      EMAIL_FROM_NAME: ""
+      RENDER_STORAGE_TYPE: "s3"
+      RENDER_STORAGE_REGION: "" #region of the s3 bucket
+      RENDER_STORAGE_LOCATION: "" # name of s3 bucket
+    ports:
+      - 9700:9700 # web and api
+      - 9701:9701 # websocket
+    volumes:
+      - hava:/hava/data
+      - ./hava.licence:/hava/hava.licence:ro
+
+  elastic:
+    image: elasticsearch:6.8.23
+    restart: always
+    environment:
+      - xpack.ml.enabled=false
+      - discovery.type=single-node
+      - http.max_content_length=500mb
+    ports:
+      - 9200:9200
+      - 9300:9300
+    volumes:
+      - elastic:/usr/share/elasticsearch/data
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - 6379:6379
+    volumes:
+      - redis:/data
+
+volumes: # volumes defined to ensure data survives a reboot of the container / VM
+  elastic:
+  hava:
+  redis:
