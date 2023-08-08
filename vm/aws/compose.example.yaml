@@ -14,7 +14,8 @@ services:
       ENCRYPT_IV: "random" # openssl rand -hex 8
       ENCRYPT_KEY: "random" # openssl rand -hex 48
       CAR_ENABLED: true
-      CAR_ACCOUNT_ID: "122761306813" # id of AWS account
+      CAR_ACCOUNT_ID: "" # id of AWS account
+      CAR_USE_INSTANCE_PROFILE: true
       HAVA_HOST: "http://hava.example.com:9700" # full url for the frontend appls 
       COOKIE_DOMAIN: "" # domain used for cookies e.g. example.com 
       API_HOST: "hava.example.com" # dns domain of the API endpoint e.g. hava.example.com
