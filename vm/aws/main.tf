@@ -358,9 +358,9 @@ resource "terraform_data" "hava_bootstrap" {
 
   provisioner "remote-exec" {
     inline = [
-      "docker compose -f /hava/docker-compose.yaml run hava hava exec rake db:setup",                                                   # run db:setup task
-      "docker compose -f /hava/docker-compose.yaml run hava hava exec rake es:index",                                                   # run es:index task
-      "docker compose -f /hava/docker-compose.yaml run hava hava accounts setup ${var.hava_licence_username} ${var.hava_licence_email}" # account setup
+      "docker compose --progress plain --file /hava/docker-compose.yaml run hava hava exec rake db:setup",                                                   # run db:setup task
+      "docker compose --progress plain --file /hava/docker-compose.yaml run hava hava exec rake es:index",                                                   # run es:index task
+      "docker compose --progress plain --file /hava/docker-compose.yaml run hava hava accounts setup ${var.hava_licence_username} ${var.hava_licence_email}" # account setup
     ]
   }
 
@@ -390,10 +390,10 @@ resource "terraform_data" "hava_upgrade" {
 
   provisioner "remote-exec" {
     inline = [
-      "docker compose -f /hava/docker-compose.yaml stop hava",                          # stop hava app
-      "docker compose -f /hava/docker-compose.yaml run hava hava exec rake db:migrate", # run db:migrate task
-      "docker compose -f /hava/docker-compose.yaml run hava ./price_import.sh",         # run price import
-      "docker compose -f /hava/docker-compose.yaml up -d"                               # start services
+      "docker compose --progress plain --file /hava/docker-compose.yaml stop hava",                          # stop hava app
+      "docker compose --progress plain --file /hava/docker-compose.yaml run hava hava exec rake db:migrate", # run db:migrate task
+      "docker compose --progress plain --file /hava/docker-compose.yaml run hava ./price_import.sh",         # run price import
+      "docker compose --progress plain --file /hava/docker-compose.yaml up -d"                               # start services
     ]
   }
 
