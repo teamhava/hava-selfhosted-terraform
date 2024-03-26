@@ -334,8 +334,8 @@ resource "terraform_data" "hava_env" {
 
       "echo DATABASE_URL=postgres://${aws_db_instance.hava.username}:$(aws secretsmanager get-secret-value --secret-id '${aws_db_instance.hava.master_user_secret[0].secret_arn}' --region ${var.aws_region} --query SecretString --output text | jq --raw-output '.password | @uri')@${aws_db_instance.hava.endpoint}/${aws_db_instance.hava.db_name} > /hava/hava_db.env", # write hava_db.env file
 
-      var.ssl_cert != null ? "echo ${local.ssl_cert_b64} | base64 -d > /hava/ssl/ssl.crt" : null, # write ssl.crt file
-      var.ssl_key != null ? "echo ${local.ssl_key_b64} | base64 -d > /hava/ssl/ssl.key" : null,   # write ssl.key file
+      var.ssl_cert != null ? "echo ${local.ssl_cert_b64} | base64 -d > /hava/ssl/ssl.crt" : "true", # write ssl.crt file
+      var.ssl_key != null ? "echo ${local.ssl_key_b64} | base64 -d > /hava/ssl/ssl.key" : "true",   # write ssl.key file
     ]
   }
 
