@@ -1,12 +1,13 @@
 resource "aws_s3_bucket" "hava_cache" {
-  bucket = "${local.prefix}-cache-${random_string.sufix.result}"
-
-  tags = local.tags
+  count         = var.create_s3_bucket ? 1 : 0
+  bucket        = "${var.name_prefix}-cache-${random_string.suffix.result}"
+  force_destroy = var.force_destroy_s3_bucket
 }
 
 resource "aws_iam_policy" "hava_cache_s3" {
-  name = "${local.prefix}-s3-${random_string.sufix.result}"
-  path = "/"
+  count       = var.create_s3_bucket ? 1 : 0
+  name        = "${var.name_prefix}-s3-${random_string.suffix.result}"
+  path        = "/"
   description = "Provides read/write access to hava s3 cache bucket"
 
   policy = jsonencode({
@@ -21,22 +22,17 @@ resource "aws_iam_policy" "hava_cache_s3" {
         ]
         Effect = "Allow"
         Resource = [
-          aws_s3_bucket.hava_cache.arn, 
-          "${aws_s3_bucket.hava_cache.arn}/*"
+          aws_s3_bucket.hava_cache[0].arn,
+          "${aws_s3_bucket.hava_cache[0].arn}/*"
         ]
       }
     ]
   })
-
-  tags = local.tags
 }
 
 resource "aws_iam_policy_attachment" "hava_cache_s3" {
-  name = "${local.prefix}-s3-${random_string.sufix.result}"
-  roles = [aws_iam_role.hava.name]
-  policy_arn = aws_iam_policy.hava_cache_s3.arn
-}
-
-output "s3_bucket_name" {
-  value = aws_s3_bucket.hava_cache.bucket
+  count      = var.create_s3_bucket ? 1 : 0
+  name       = "${var.name_prefix}-s3-${random_string.suffix.result}"
+  roles      = [aws_iam_role.hava.name]
+  policy_arn = aws_iam_policy.hava_cache_s3[0].arn
 }
