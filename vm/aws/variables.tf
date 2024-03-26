@@ -26,11 +26,6 @@ variable "instance_subnet_id" {
   description = "ID of the Subnet the EC2 Instance will be deployed to"
 }
 
-variable "instance_key" {
-  type        = string
-  description = "Name of the SSH Key Pair to associate with the EC2 Instance"
-}
-
 variable "db_subnet_ids" {
   type        = list(string)
   description = "List of IDs of the Subnets to assicate to the RDS Instance"

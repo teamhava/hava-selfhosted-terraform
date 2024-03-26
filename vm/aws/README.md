@@ -20,6 +20,8 @@ The VM is pre-configured with the required config to run Hava.
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.3 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5 |
 | <a name="requirement_random"></a> [random](#requirement\_random) | ~> 3 |
+| <a name="requirement_time"></a> [time](#requirement\_time) | ~> 0.11 |
+| <a name="requirement_tls"></a> [tls](#requirement\_tls) | ~> 4 |
 
 ## Providers
 
@@ -27,6 +29,9 @@ The VM is pre-configured with the required config to run Hava.
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5 |
 | <a name="provider_random"></a> [random](#provider\_random) | ~> 3 |
+| <a name="provider_terraform"></a> [terraform](#provider\_terraform) | n/a |
+| <a name="provider_time"></a> [time](#provider\_time) | ~> 0.11 |
+| <a name="provider_tls"></a> [tls](#provider\_tls) | ~> 4 |
 
 ## Resources
 
@@ -45,6 +50,7 @@ The VM is pre-configured with the required config to run Hava.
 | [aws_iam_policy_attachment.hava_db_secret](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy_attachment) | resource |
 | [aws_iam_role.hava](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_instance.hava](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance) | resource |
+| [aws_key_pair.hava](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/key_pair) | resource |
 | [aws_route53_record.hava](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record) | resource |
 | [aws_s3_bucket.hava_cache](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
 | [aws_security_group.hava_db_sg](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
@@ -52,6 +58,13 @@ The VM is pre-configured with the required config to run Hava.
 | [random_bytes.encrypt_iv](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/bytes) | resource |
 | [random_bytes.encrypt_key](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/bytes) | resource |
 | [random_string.suffix](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) | resource |
+| [terraform_data.hava_bootstrap](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
+| [terraform_data.hava_env](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
+| [terraform_data.hava_env_trigger](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
+| [terraform_data.hava_upgrade](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
+| [terraform_data.hava_upgrade_trigger](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
+| [time_sleep.remote_exec](https://registry.terraform.io/providers/hashicorp/time/latest/docs/resources/sleep) | resource |
+| [tls_private_key.hava](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/private_key) | resource |
 | [aws_ami.debian](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |
 | [aws_iam_policy_document.hava_car_assume_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.hava_db_secret](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
@@ -110,7 +123,6 @@ The VM is pre-configured with the required config to run Hava.
 | <a name="input_hava_licence_username"></a> [hava\_licence\_username](#input\_hava\_licence\_username) | Hava username | `string` | n/a | yes |
 | <a name="input_hava_version"></a> [hava\_version](#input\_hava\_version) | Hava Version | `string` | `"2.3.877"` | no |
 | <a name="input_http_proxy"></a> [http\_proxy](#input\_http\_proxy) | Use to set a proxy address that the workers will use to connect to external services | `string` | `null` | no |
-| <a name="input_instance_key"></a> [instance\_key](#input\_instance\_key) | Name of the SSH Key Pair to associate with the EC2 Instance | `string` | n/a | yes |
 | <a name="input_instance_subnet_id"></a> [instance\_subnet\_id](#input\_instance\_subnet\_id) | ID of the Subnet the EC2 Instance will be deployed to | `string` | n/a | yes |
 | <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | Type of EC2 instance to deploy | `string` | `"m5.xlarge"` | no |
 | <a name="input_log_level"></a> [log\_level](#input\_log\_level) | level of the logs printed to output. Supported values: debug, info, warn, error | `string` | `"warn"` | no |
@@ -163,6 +175,8 @@ The VM is pre-configured with the required config to run Hava.
 | <a name="output_db_name"></a> [db\_name](#output\_db\_name) | Hava DB Name |
 | <a name="output_db_user"></a> [db\_user](#output\_db\_user) | Hava DB User |
 | <a name="output_instance_id"></a> [instance\_id](#output\_instance\_id) | Instance ID of the Hava Instance |
+| <a name="output_instance_ip"></a> [instance\_ip](#output\_instance\_ip) | IP Address of the Hava Instance |
+| <a name="output_instance_ssh_private_key"></a> [instance\_ssh\_private\_key](#output\_instance\_ssh\_private\_key) | Instance SSH Private Key |
+| <a name="output_instance_ssh_user"></a> [instance\_ssh\_user](#output\_instance\_ssh\_user) | Instance SSH Username |
 | <a name="output_s3_bucket_name"></a> [s3\_bucket\_name](#output\_s3\_bucket\_name) | Name of the Hava s3 bucket |
-| <a name="output_vm_ip"></a> [vm\_ip](#output\_vm\_ip) | IP Address of the Hava Instance |
 <!-- END_TF_DOCS -->

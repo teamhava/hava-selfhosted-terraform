@@ -3,7 +3,7 @@ output "instance_id" {
   value       = aws_instance.hava.id
 }
 
-output "vm_ip" {
+output "instance_ip" {
   description = "IP Address of the Hava Instance"
   value       = var.create_elastic_ip ? aws_eip.hava[0].public_ip : aws_instance.hava.public_ip
 }
@@ -26,4 +26,15 @@ output "db_name" {
 output "db_user" {
   description = "Hava DB User"
   value       = aws_db_instance.hava.username
+}
+
+output "instance_ssh_private_key" {
+  description = "Instance SSH Private Key"
+  value       = tls_private_key.hava.private_key_openssh
+  sensitive   = true
+}
+
+output "instance_ssh_user" {
+  description = "Instance SSH Username"
+  value       = "admin"
 }

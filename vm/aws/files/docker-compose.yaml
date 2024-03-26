@@ -1,6 +1,6 @@
 services:
   hava:
-    image: ${hava_image}:${hava_version}
+    image: ${HAVA_IMAGE}:${HAVA_VERSION}
     restart: always
     depends_on:
       - elastic
@@ -13,8 +13,8 @@ services:
       - /hava/hava.env
       - /hava/hava_db.env
     ports:
-      - ${api_port}:${api_port} # web and api
-      - ${websocket_port}:${websocket_port} # websocket
+      - ${API_PORT}:${API_PORT} # web and api
+      - ${WEBSOCKET_PORT}:${WEBSOCKET_PORT} # websocket
     volumes:
       - hava:/hava/data
       - /hava/hava.licence:/hava/hava.licence:ro
