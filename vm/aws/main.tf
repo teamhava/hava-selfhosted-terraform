@@ -117,10 +117,10 @@ locals {
     SSL_KEY     = var.ssl_key != null ? "/hava/ssl/ssl.key" : null
   }
   hava_env_file         = join("\n", [for k, v in local.hava_env : "${k}=${v}" if v != null])
-  hava_env_file_b64     = sensitive(base64encode(local.hava_env_file))
-  hava_licence_file_b64 = sensitive(base64encode(var.hava_licence))
-  ssl_cert_b64          = sensitive(var.ssl_cert != null ? base64encode(file(var.ssl_cert)) : "")
-  ssl_key_b64           = sensitive(var.ssl_key != null ? base64encode(file(var.ssl_key)) : "")
+  hava_env_file_b64     = base64encode(local.hava_env_file)
+  hava_licence_file_b64 = base64encode(var.hava_licence)
+  ssl_cert_b64          = var.ssl_cert != null ? base64encode(file(var.ssl_cert)) : ""
+  ssl_key_b64           = var.ssl_key != null ? base64encode(file(var.ssl_key)) : ""
 }
 
 resource "random_string" "suffix" {
