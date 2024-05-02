@@ -1,15 +1,56 @@
-# Hava AWS VM
+# Hava AWS VM Terraform Module
 
-Terraform template to deploy a VM with supporting infrastructure in AWS for running Hava
+Terraform module to deploy Hava Self-Hosted in AWS on a single VM
 
-The VM is pre-configured with the required config to run Hava.
+## Example Usage
 
-## Deployment
+```hcl
+variable "hava_image" {
+  type = string
+}
 
-1. Provide values for require variables
-2. run `terraform apply`
-3. Ensure DNS is configured for the VM
-4. Access hava on port `9700` on the created DNS entry
+variable "hava_version" {
+  type = string
+}
+
+variable "hava_licence" {
+  type = string
+}
+
+variable "hava_licence_username" {
+  type = string
+}
+
+variable "hava_licence_email" {
+  type = string
+}
+
+module "self_hosted_vm" {
+  source = "github.com/teamhava/hava-selfhosted-terraform//vm/aws"
+
+  hava_image              = var.hava_image
+  hava_version            = var.hava_version
+  hava_licence            = var.hava_licence
+  hava_licence_username   = var.hava_licence_username
+  hava_licence_email      = var.hava_licence_email
+  create_elastic_ip       = true
+  create_route53_record   = true
+  create_s3_bucket        = true
+  force_destroy_s3_bucket = true
+  aws_region              = "us-east-1"
+  route53_zone_name       = "testing.hava.io"
+  route53_record_name     = "self-hosted-vm"
+  hava_domain             = "self-hosted-vm.testing.hava.io"
+  name_prefix             = "self-hosted-vm"
+  vpc_id                  = "vpc-08a6b5a7fac2aa22f"
+  instance_subnet_id      = "subnet-03920e6008d6a0213"
+  db_subnet_ids           = ["subnet-00a9d7cdc3b8b5021", "subnet-06c4ad5548edd127d"]
+  tags = {
+    Environment = "test"
+    Workload    = "Hava"
+  }
+}
+```
 
 
 <!-- BEGIN_TF_DOCS -->
