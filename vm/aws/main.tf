@@ -283,7 +283,6 @@ resource "aws_instance" "hava" {
   subnet_id              = var.instance_subnet_id
   key_name               = aws_key_pair.hava.id
   vpc_security_group_ids = [aws_security_group.hava_sg.id]
-  user_data              = file("${path.module}/files/cloud-init.yaml")
 
   root_block_device {
     volume_size = var.root_volume_size
@@ -292,12 +291,55 @@ resource "aws_instance" "hava" {
   }
 }
 
-resource "time_sleep" "remote_exec" {
-  create_duration = "60s"
+resource "time_sleep" "instance_bootstrap" {
+  create_duration = "120s"
 
   triggers = {
     instance_id = aws_instance.hava.id
   }
+}
+
+resource "terraform_data" "instance_bootstrap" {
+  triggers_replace = [
+    aws_instance.hava.id
+  ]
+
+  connection {
+    type        = "ssh"
+    user        = "admin"
+    host        = var.create_elastic_ip ? aws_eip.hava[0].public_ip : aws_instance.hava.public_ip
+    private_key = tls_private_key.hava.private_key_openssh
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "set -e",
+      "sudo apt-get update",
+      "sudo apt-get install -y ca-certificates curl gnupg jq",
+      "sudo install -m 0755 -d /etc/apt/keyrings",
+      "sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc",
+      "sudo chmod a+r /etc/apt/keyrings/docker.asc",
+      "echo \"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian $(. /etc/os-release && echo \"$VERSION_CODENAME\") stable\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null",
+      "sudo apt-get update",
+      "sudo apt-get -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin",
+      "sudo usermod -aG docker admin",
+      "sudo mkdir -p /hava",
+      "sudo mkdir -p /hava/ssl",
+      "sudo chown -R admin.admin /hava"
+    ]
+  }
+
+  depends_on = [time_sleep.instance_bootstrap]
+}
+
+resource "time_sleep" "remote_exec" {
+  create_duration = "30s"
+
+  triggers = {
+    instance_id = aws_instance.hava.id
+  }
+
+  depends_on = [terraform_data.instance_bootstrap]
 }
 
 resource "terraform_data" "hava_env_trigger" {
@@ -327,15 +369,15 @@ resource "terraform_data" "hava_env" {
 
   provisioner "remote-exec" {
     inline = [
-      "echo ${local.docker_compose_file_b64} | base64 -d > /hava/docker-compose.yaml", # write docker compose file
-      "echo ${local.docker_compose_env_file_b64} | base64 -d > /hava/.env",            # write .env file
-      "echo ${local.hava_env_file_b64} | base64 -d > /hava/hava.env",                  # write hava.env file
-      "echo ${local.hava_licence_file_b64} | base64 -d > /hava/hava.licence",          # write hava.licence file
+      "echo \"${local.docker_compose_file_b64}\" | base64 -d > /hava/docker-compose.yaml", # write docker compose file
+      "echo \"${local.docker_compose_env_file_b64}\" | base64 -d > /hava/.env",            # write .env file
+      "echo \"${local.hava_env_file_b64}\" | base64 -d > /hava/hava.env",                  # write hava.env file
+      "echo \"${local.hava_licence_file_b64}\" | base64 -d > /hava/hava.licence",          # write hava.licence file
 
-      "echo DATABASE_URL=postgres://${aws_db_instance.hava.username}:$(aws secretsmanager get-secret-value --secret-id '${aws_db_instance.hava.master_user_secret[0].secret_arn}' --region ${var.aws_region} --query SecretString --output text | jq --raw-output '.password | @uri')@${aws_db_instance.hava.endpoint}/${aws_db_instance.hava.db_name} > /hava/hava_db.env", # write hava_db.env file
+      "echo \"DATABASE_URL=postgres://${aws_db_instance.hava.username}:$(aws secretsmanager get-secret-value --secret-id '${aws_db_instance.hava.master_user_secret[0].secret_arn}' --region ${var.aws_region} --query SecretString --output text | jq --raw-output '.password | @uri')@${aws_db_instance.hava.endpoint}/${aws_db_instance.hava.db_name}\" > /hava/hava_db.env", # write hava_db.env file
 
-      var.ssl_cert != null ? "echo ${local.ssl_cert_b64} | base64 -d > /hava/ssl/ssl.crt" : "true", # write ssl.crt file
-      var.ssl_key != null ? "echo ${local.ssl_key_b64} | base64 -d > /hava/ssl/ssl.key" : "true",   # write ssl.key file
+      var.ssl_cert != null ? "echo \"${local.ssl_cert_b64}\" | base64 -d > /hava/ssl/ssl.crt" : "true", # write ssl.crt file
+      var.ssl_key != null ? "echo \"${local.ssl_key_b64}\" | base64 -d > /hava/ssl/ssl.key" : "true",   # write ssl.key file
     ]
   }
 
