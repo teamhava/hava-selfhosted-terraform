@@ -148,7 +148,7 @@ data "aws_ami" "debian" {
 }
 
 resource "aws_security_group" "hava_sg" {
-  name        = "hava-sg"
+  name        = "${var.name_prefix}-vm-${random_string.suffix.result}"
   description = "Allow ssh and http traffic to Hava"
   vpc_id      = var.vpc_id
 
@@ -183,7 +183,7 @@ resource "aws_security_group" "hava_sg" {
   }
 
   tags = {
-    Name = "hava-sg"
+    Name = "${var.name_prefix}-vm-${random_string.suffix.result}"
   }
 }
 
