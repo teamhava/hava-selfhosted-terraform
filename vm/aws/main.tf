@@ -283,6 +283,9 @@ resource "aws_instance" "hava" {
   subnet_id              = var.instance_subnet_id
   key_name               = aws_key_pair.hava.id
   vpc_security_group_ids = [aws_security_group.hava_sg.id]
+  metadata_options {
+    http_put_response_hop_limit = 2
+  }
 
   root_block_device {
     volume_size = var.root_volume_size
