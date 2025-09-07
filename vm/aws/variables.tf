@@ -104,7 +104,7 @@ variable "root_volume_type" {
 variable "db_engine_version" {
   type        = string
   description = "PostgreSQL RDS engine version"
-  default     = "15.6"
+  default     = "15.14"
 }
 
 variable "db_instance_class" {
