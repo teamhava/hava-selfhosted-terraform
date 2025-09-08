@@ -21,12 +21,13 @@ services:
       - /hava/ssl:/hava/ssl:ro
 
   elastic:
-    image: elasticsearch:6.8.23
+    image: arm64v8/elasticsearch:7.17.24
     restart: always
     environment:
       - xpack.ml.enabled=false
       - discovery.type=single-node
       - http.max_content_length=500mb
+      - xpack.security.enabled=false
     ports:
       - 9200:9200
       - 9300:9300
