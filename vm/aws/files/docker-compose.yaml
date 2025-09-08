@@ -21,7 +21,7 @@ services:
       - /hava/ssl:/hava/ssl:ro
 
   elastic:
-    image: arm64v8/elasticsearch:7.17.24
+    image: elasticsearch:7.17.24
     restart: always
     environment:
       - xpack.ml.enabled=false
